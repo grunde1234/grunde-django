@@ -16,6 +16,7 @@ class JournalistSerializer(serializers.Serializer):
        return Journalist.objects.create(**validated_data)
 
 class ArticleSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
     title = serializers.CharField(max_length=120)
     description = serializers.CharField(max_length=200)
     body = serializers.CharField()
@@ -36,6 +37,17 @@ class ArticleSerializer(serializers.Serializer):
         except Journalist.DoesNotExist:
             raise serializers.ValidationError(f"Journalist with email '{author_email}' does not exist.")
         return Article.objects.create(author=author, **validated_data)
+    
+    def update(self, instance, validated_data):
+        instance.title = validated_data.get('title', instance.title)
+        instance.description = validated_data.get('description', instance.description)
+        instance.body = validated_data.get('body', instance.body)
+        instance.location = validated_data.get('location', instance.location)
+        instance.publication_date = validated_data.get('publication_date', instance.publication_date)
+        #instance.author_email = validated_data.get('author_email', instance.author_email)
+
+        instance.save()
+        return instance
 
 
 """ from rest_framework import serializers
